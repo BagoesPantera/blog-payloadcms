@@ -1,21 +1,17 @@
-import {CollectionConfig, FieldHook} from 'payload/types'
-import {AuthenticatedUser} from "../access/AuthenticatedUser.access";
-import {AuthenticatedOrAdmin} from "../access/AuthenticatedOrAdmin.access";
+import { CollectionConfig, FieldHook } from 'payload/types';
+import { AuthenticatedUser } from '../access/AuthenticatedUser.access';
+import { AuthenticatedOrAdmin } from '../access/AuthenticatedOrAdmin.access';
+import { SlugField } from '../fields/slug.field';
 
-const formatSlug: FieldHook = async ({ value, data }) => {
-    return data?.title?.replace(/ /g, '-').toLowerCase() ?? value;
+const formatSlug: FieldHook = async ({ operation, value, data }) => {
+    if (data?.title) if (operation === "create") return data?.title?.replace(/ /g, '-').toLowerCase() ?? value;
+    return value
 };
 
 const Blogs: CollectionConfig = {
     slug: 'blogs',
     admin: {
         useAsTitle: 'id',
-    },
-    access: {
-        create: AuthenticatedUser,
-        read: AuthenticatedUser,
-        update: AuthenticatedOrAdmin,
-        delete: AuthenticatedOrAdmin,
     },
     upload: {
         staticURL: '/media',
@@ -47,7 +43,7 @@ const Blogs: CollectionConfig = {
         {
             name: 'title',
             type: 'text',
-            required: true
+            required: true,
         },
         {
             name: 'content',
@@ -58,19 +54,20 @@ const Blogs: CollectionConfig = {
             name: 'slug',
             type: 'text',
             hooks: {
-                beforeChange: [
-                    formatSlug,
-                ]
+                beforeChange: [formatSlug],
             },
             admin: {
                 readOnly: true,
-            }
+                components: {
+                    Field: SlugField,
+                },
+            },
         },
         {
             name: 'authorId',
             type: 'text',
-        }
+        },
     ],
-}
+};
 
-export default Blogs
+export default Blogs;
