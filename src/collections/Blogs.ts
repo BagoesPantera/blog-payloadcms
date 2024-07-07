@@ -1,4 +1,6 @@
 import {CollectionConfig, FieldHook} from 'payload/types'
+import {AuthenticatedUser} from "../access/AuthenticatedUser.access";
+import {AuthenticatedOrAdmin} from "../access/AuthenticatedOrAdmin.access";
 
 const formatSlug: FieldHook = async ({ value, data }) => {
     return data?.title?.replace(/ /g, '-').toLowerCase() ?? value;
@@ -8,6 +10,12 @@ const Blogs: CollectionConfig = {
     slug: 'blogs',
     admin: {
         useAsTitle: 'id',
+    },
+    access: {
+        create: AuthenticatedUser,
+        read: AuthenticatedUser,
+        update: AuthenticatedOrAdmin,
+        delete: AuthenticatedOrAdmin,
     },
     upload: {
         staticURL: '/media',
